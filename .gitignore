@@ -37,5 +37,10 @@
 *.out
 *.app
 
-# debug information files
+# Debug information files
 *.dwo
+
+# Build directories
+/build/
+/CMakeFiles/
+/cmake-build-*
