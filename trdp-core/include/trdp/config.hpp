@@ -2,12 +2,15 @@
 
 #include "dataset.hpp"
 
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
 namespace trdp
 {
+
+class TauMarshaller;
 
 struct PdPublishTelegram
 {
@@ -54,6 +57,7 @@ struct TrdpConfig
     std::vector<PdPublishTelegram> pdPublish;
     std::vector<PdSubscribeTelegram> pdSubscribe;
     std::vector<MdTemplate> mdTemplates;
+    std::shared_ptr<TauMarshaller> tauMarshaller;
 };
 
 class XmlConfigLoader

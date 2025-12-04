@@ -2,6 +2,7 @@
 
 #include "trdp/dataset.hpp"
 #include "trdp/logging.hpp"
+#include "trdp/tau.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -69,7 +70,21 @@ bool MdEngine::sendTemplate(const std::string &name, std::ostream &os) const
         packDatasetToPayload(*dataset, it->values, payload);
     }
 
-    os << "MD send: " << it->name << " COMID=" << it->comId << " bytes=" << payload.size() << std::endl;
+    std::vector<uint8_t> networkPayload;
+    if (config_.tauMarshaller && config_.tauMarshaller->valid())
+    {
+        if (!config_.tauMarshaller->marshall(it->comId, payload, networkPayload))
+        {
+            warn("tau_marshall failed for MD template '" + it->name + "', using host payload");
+            networkPayload = payload;
+        }
+    }
+    else
+    {
+        networkPayload = payload;
+    }
+
+    os << "MD send: " << it->name << " COMID=" << it->comId << " bytes=" << networkPayload.size() << std::endl;
     return true;
 }
 

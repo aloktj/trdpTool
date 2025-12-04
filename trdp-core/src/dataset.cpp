@@ -57,8 +57,20 @@ bool assignValue(ElementValue &value, const std::string &input)
             buffer = {static_cast<uint8_t>(parsed)};
             break;
         }
+        case TrdpType::CHAR8:
+        {
+            const char parsed = input.empty() ? '\0' : input.front();
+            buffer = {static_cast<uint8_t>(parsed)};
+            break;
+        }
+        case TrdpType::INT8:
+            appendIntegral(static_cast<int8_t>(std::stoi(input)));
+            break;
         case TrdpType::UINT8:
             appendIntegral(static_cast<uint8_t>(std::stoul(input)));
+            break;
+        case TrdpType::INT16:
+            appendIntegral(static_cast<int16_t>(std::stoi(input)));
             break;
         case TrdpType::UINT16:
             appendIntegral(static_cast<uint16_t>(std::stoul(input)));
@@ -74,6 +86,12 @@ bool assignValue(ElementValue &value, const std::string &input)
             break;
         case TrdpType::INT64:
             appendIntegral(static_cast<int64_t>(std::stoll(input)));
+            break;
+        case TrdpType::TIMEDATE32:
+            appendIntegral(static_cast<uint32_t>(std::stoul(input)));
+            break;
+        case TrdpType::TIMEDATE64:
+            appendIntegral(static_cast<uint64_t>(std::stoull(input)));
             break;
         case TrdpType::REAL32:
         {
@@ -91,6 +109,17 @@ bool assignValue(ElementValue &value, const std::string &input)
         case TrdpType::BYTES:
         {
             buffer.assign(input.begin(), input.end());
+            if (size != 0 && buffer.size() < size)
+            {
+                buffer.resize(size, 0);
+            }
+            break;
+        }
+        case TrdpType::UTF16:
+        {
+            std::u16string parsed(input.begin(), input.end());
+            buffer.resize(parsed.size() * sizeof(char16_t));
+            std::memcpy(buffer.data(), parsed.data(), buffer.size());
             if (size != 0 && buffer.size() < size)
             {
                 buffer.resize(size, 0);
