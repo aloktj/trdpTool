@@ -37,6 +37,7 @@ struct ElementValue
 {
     DatasetElementDef element;
     std::vector<uint8_t> rawValue;
+    bool locked{false};
 };
 
 using ElementValues = std::vector<ElementValue>;

@@ -64,9 +64,32 @@ bool PdEngine::clearPublish(std::size_t index)
     auto &pub = config_.pdPublish[index];
     for (auto &val : pub.values)
     {
-        val.rawValue.assign(expectedSize(val.element), 0);
+        if (val.locked)
+        {
+            warn("Skipping clear for locked element '" + val.element.name + "'");
+            continue;
+        }
+        val.rawValue.assign(val.rawValue.size(), 0);
     }
     return true;
+}
+
+bool PdEngine::setPublishLock(std::size_t index, const std::string &element, bool locked)
+{
+    if (index >= config_.pdPublish.size())
+    {
+        return false;
+    }
+    auto &pub = config_.pdPublish[index];
+    for (auto &val : pub.values)
+    {
+        if (val.element.name == element)
+        {
+            val.locked = locked;
+            return true;
+        }
+    }
+    return false;
 }
 
 bool PdEngine::buildPublishPayload(std::size_t index, std::vector<uint8_t> &networkPayload) const

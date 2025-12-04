@@ -49,9 +49,33 @@ bool MdEngine::clearTemplate(const std::string &name)
     }
     for (auto &val : it->values)
     {
-        val.rawValue.assign(expectedSize(val.element), 0);
+        if (val.locked)
+        {
+            warn("Skipping clear for locked element '" + val.element.name + "'");
+            continue;
+        }
+        val.rawValue.assign(val.rawValue.size(), 0);
     }
     return true;
+}
+
+bool MdEngine::setTemplateLock(const std::string &name, const std::string &element, bool locked)
+{
+    const auto it = std::find_if(config_.mdTemplates.begin(), config_.mdTemplates.end(),
+                                 [&](const auto &tpl) { return tpl.name == name; });
+    if (it == config_.mdTemplates.end())
+    {
+        return false;
+    }
+    for (auto &val : it->values)
+    {
+        if (val.element.name == element)
+        {
+            val.locked = locked;
+            return true;
+        }
+    }
+    return false;
 }
 
 bool MdEngine::sendTemplate(const std::string &name, std::ostream &os) const

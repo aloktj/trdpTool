@@ -38,6 +38,12 @@ std::size_t expectedSize(const DatasetElementDef &def)
 
 bool assignValue(ElementValue &value, const std::string &input)
 {
+    if (value.locked)
+    {
+        warn("Element '" + value.element.name + "' is locked; skipping update.");
+        return false;
+    }
+
     std::vector<uint8_t> buffer;
     const auto size = expectedSize(value.element);
 
