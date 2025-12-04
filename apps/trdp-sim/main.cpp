@@ -126,8 +126,10 @@ int main(int argc, char **argv)
 {
     std::signal(SIGINT, handleSignal);
 
+    const std::string deviceFile = (argc > 1) ? argv[1] : "apps/trdp-sim/example-device.xml";
+
     XmlConfigLoader loader;
-    auto config = loader.loadFromDeviceConfig("", "", "", "");
+    auto config = loader.loadFromDeviceConfig(deviceFile, "", "", "");
     if (!config)
     {
         error("Failed to load configuration");
