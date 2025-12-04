@@ -26,6 +26,19 @@ If `TRDP_LIB_PATH` is omitted, the project builds in a stub mode so you can expl
 
 Type `help` at the prompt for available commands (PD/MD listing, setting element values, and sending an MD template). The simulator loads the standard TRDP device XML format used in [TCNopen](https://github.com/aloktj/TCNopen/tree/master/trdp/test/xml) and ships with a sample at `apps/trdp-sim/example-device.xml`.
 
+## HTTP control surface
+
+When the simulator starts it also binds a lightweight HTTP server on port `8080` that is wired to the same `TrdpConfig`, `PdEngine`, and `MdEngine` instances used by the CLI. The service returns JSON by default, with a simple HTML landing page at `/` that lists available routes.
+
+- List all PD publish telegrams and their element states: `GET http://localhost:8080/api/pd/publish`
+- List MD templates: `GET http://localhost:8080/api/md/templates`
+- Fetch the current payload as a hex string: `GET http://localhost:8080/api/pd/publish/<index>/payload` or `/api/md/templates/<name>/payload`
+- Update an element: `POST .../value` with a JSON body like `{ "element": "temperature", "value": "72" }`
+- Clear all elements in a telegram/template (unlocked elements only): `POST .../clear`
+- Lock or unlock a single element to prevent edits: `POST .../lock` with `{ "element": "temperature", "locked": true }`
+
+Element names match the CLI display. Locked elements reject updates and are left untouched by clear operations until they are unlocked.
+
 ## Next steps
 
 - Extend the XML loader in `trdp-core/src/config.cpp` to cover additional TRDP features (e.g., com-parameter overrides and MD templates).
