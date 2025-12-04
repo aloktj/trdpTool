@@ -1,6 +1,7 @@
 #include "trdp/config.hpp"
 
 #include "trdp/logging.hpp"
+#include "trdp/tau.hpp"
 
 #include "tinyxml2.h"
 
@@ -294,6 +295,14 @@ std::optional<TrdpConfig> XmlConfigLoader::loadFromDeviceConfig(const std::strin
     {
         warn("No datasets loaded from XML");
     }
+
+#ifdef TRDP_AVAILABLE
+    config.tauMarshaller = TauMarshaller::createFromXml(deviceFile);
+    if (!config.tauMarshaller)
+    {
+        warn("TRDP stack available but tau marshalling could not be initialised from XML.");
+    }
+#endif
 
     info("Loaded configuration from standard TRDP device XML: " + deviceFile);
     return config;

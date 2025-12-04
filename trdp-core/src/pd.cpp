@@ -2,6 +2,7 @@
 
 #include "trdp/dataset.hpp"
 #include "trdp/logging.hpp"
+#include "trdp/tau.hpp"
 
 #include <iostream>
 
@@ -66,6 +67,71 @@ bool PdEngine::clearPublish(std::size_t index)
         val.rawValue.assign(expectedSize(val.element), 0);
     }
     return true;
+}
+
+bool PdEngine::buildPublishPayload(std::size_t index, std::vector<uint8_t> &networkPayload) const
+{
+    if (index >= config_.pdPublish.size())
+    {
+        return false;
+    }
+
+    const auto &pub = config_.pdPublish[index];
+    const auto *dataset = config_.datasetRegistry.find(pub.datasetId);
+    if (dataset == nullptr)
+    {
+        warn("Unknown dataset for publish payload: " + std::to_string(pub.datasetId));
+        return false;
+    }
+
+    std::vector<uint8_t> hostPayload;
+    packDatasetToPayload(*dataset, pub.values, hostPayload);
+
+    if (config_.tauMarshaller && config_.tauMarshaller->valid())
+    {
+        std::vector<uint8_t> marshalled;
+        if (config_.tauMarshaller->marshall(pub.comId, hostPayload, marshalled))
+        {
+            networkPayload = std::move(marshalled);
+            return true;
+        }
+        warn("Falling back to raw payload after failed tau_marshall for ComId " + std::to_string(pub.comId));
+    }
+
+    networkPayload = std::move(hostPayload);
+    return true;
+}
+
+bool PdEngine::updateSubscribeValues(std::size_t index, const std::vector<uint8_t> &networkPayload)
+{
+    if (index >= config_.pdSubscribe.size())
+    {
+        return false;
+    }
+
+    auto &sub = config_.pdSubscribe[index];
+    const auto *dataset = config_.datasetRegistry.find(sub.datasetId);
+    if (dataset == nullptr)
+    {
+        warn("Unknown dataset for subscribe payload: " + std::to_string(sub.datasetId));
+        return false;
+    }
+
+    std::vector<uint8_t> hostPayload;
+    if (config_.tauMarshaller && config_.tauMarshaller->valid())
+    {
+        if (!config_.tauMarshaller->unmarshall(sub.comId, networkPayload, hostPayload))
+        {
+            warn("Failed to apply tau_unmarshall for subscribe ComId " + std::to_string(sub.comId));
+            return false;
+        }
+    }
+    else
+    {
+        hostPayload = networkPayload;
+    }
+
+    return unpackPayloadToDataset(*dataset, hostPayload, sub.lastValues);
 }
 
 void PdEngine::forEachPublish(const std::function<void(PdPublishTelegram &)> &fn)

@@ -5,6 +5,7 @@
 #include <functional>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace trdp
 {
@@ -21,6 +22,9 @@ public:
 
     bool setPublishValue(std::size_t index, const std::string &element, const std::string &value);
     bool clearPublish(std::size_t index);
+
+    bool buildPublishPayload(std::size_t index, std::vector<uint8_t> &networkPayload) const;
+    bool updateSubscribeValues(std::size_t index, const std::vector<uint8_t> &networkPayload);
 
     void forEachPublish(const std::function<void(PdPublishTelegram &)> &fn);
     void forEachSubscribe(const std::function<void(PdSubscribeTelegram &)> &fn);
