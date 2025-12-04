@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="trdp-config.xsd"
+        host-name="simulator" type="demo">
+    <bus-interface-list>
+        <bus-interface network-id="1" name="eth0">
+            <trdp-process blocking="no" cycle-time="10000" priority="80" traffic-shaping="on" />
+            <pd-com-parameter marshall="on" port="17224" qos="5" ttl="64" timeout-value="100000" validity-behavior="zero" />
+            <telegram name="publish-counter" com-id="1001" data-set-id="1001" com-parameter-id="1">
+                <pd-parameter cycle="500000" timeout="2000000" marshall="on" validity-behavior="keep" />
+                <source id="1" uri1="192.168.0.10" />
+                <destination id="1" uri="239.1.1.1" />
+            </telegram>
+            <telegram name="subscribe-state" com-id="1002" data-set-id="1002" com-parameter-id="1">
+                <pd-parameter cycle="1000000" timeout="4000000" marshall="on" validity-behavior="keep" />
+                <source id="1" uri1="239.1.1.20" />
+                <destination id="1" uri="239.1.1.20" />
+            </telegram>
+        </bus-interface>
+    </bus-interface-list>
+
+    <com-parameter-list>
+        <com-parameter id="1" qos="5" ttl="64" />
+    </com-parameter-list>
+
+    <data-set-list>
+        <data-set name="CounterData" id="1001">
+            <element name="counter" type="UINT32" />
+            <element name="label" type="STRING" size="16" />
+        </data-set>
+        <data-set name="StateData" id="1002">
+            <element name="flag" type="BOOL8" />
+            <element name="temperature" type="REAL32" />
+            <element name="timestamp" type="TIMEDATE64" />
+        </data-set>
+    </data-set-list>
+</device>

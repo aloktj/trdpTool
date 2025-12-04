@@ -21,14 +21,14 @@ If `TRDP_LIB_PATH` is omitted, the project builds in a stub mode so you can expl
 ## Running the simulator
 
 ```bash
-./build/apps/trdp-sim/trdp-sim
+./build/apps/trdp-sim/trdp-sim [path/to/device.xml]
 ```
 
-Type `help` at the prompt for available commands (PD/MD listing, setting element values, and sending an MD template). The default configuration ships with a small example dataset to make the tool usable even before wiring real XML files.
+Type `help` at the prompt for available commands (PD/MD listing, setting element values, and sending an MD template). The simulator loads the standard TRDP device XML format used in [TCNopen](https://github.com/aloktj/TCNopen/tree/master/trdp/test/xml) and ships with a sample at `apps/trdp-sim/example-device.xml`.
 
 ## Next steps
 
-- Replace the stub XML loader in `trdp-core/src/config.cpp` with TAU XML parsing to populate datasets and telegrams.
+- Extend the XML loader in `trdp-core/src/config.cpp` to cover additional TRDP features (e.g., com-parameter overrides and MD templates).
 - Hook PD publish/subscribe and MD request/reply flows into the TRDP C API by defining `TRDP_AVAILABLE` via `TRDP_LIB_PATH`.
 - Add HTTP endpoints if you need remote control for automated tests or lightweight dashboards.
 
